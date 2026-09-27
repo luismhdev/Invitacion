@@ -6,6 +6,28 @@
 <title>María José & Hernán · Invitación de boda</title>
 <meta name="description" content="Invitación digital de la boda de María José Martínez Hernández y Hernán Gómez Barquero — 12 de diciembre de 2026.">
 
+<!-- Vista previa al compartir el link (WhatsApp, etc.): muestra este
+     título/descripción en vez del link a secas. La app que abre el
+     link sigue mostrando el dominio en algún lado — eso no lo controla
+     la página, es una restricción de seguridad de los navegadores. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Invitación · María José & Hernán">
+<meta property="og:description" content="Nos casamos el 12 de diciembre de 2026. Toca para abrir la invitación.">
+<meta property="og:url" content="https://luismhdev.github.io/Invitacion/">
+<meta property="og:locale" content="es_CR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Invitación · María José & Hernán">
+<meta name="twitter:description" content="Nos casamos el 12 de diciembre de 2026.">
+
+<meta name="theme-color" content="#fdfbf5">
+<!-- Soporte "Agregar a inicio": si la agregan a la pantalla de inicio,
+     abre sin barra de direcciones (pantalla completa real). -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Invitación M&H">
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkludml0YWNpw7NuIGRlIEJvZGEgLSBNYXLDrWEgSm9zw6kgJiBIZXJuw6FuIiwgInNob3J0X25hbWUiOiAiTSZIIiwgInN0YXJ0X3VybCI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZGZiZjUiLCAidGhlbWVfY29sb3IiOiAiI2ZkZmJmNSJ9">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -35,25 +57,9 @@
     color-scheme: light;
   }
 
-  @media (prefers-color-scheme: dark){
-    :root{
-      --ivory: #1b1814;
-      --ivory-2: #221e18;
-      --paper: #fffdf8; /* el sobre conserva su papel real */
-      --white: #262119;
-      --gold: #d9bb84;
-      --gold-soft: #e8d3a4;
-      --gold-deep: #f1e2bb;
-      --sage: #a9c19c;
-      --sage-soft: #c7d8bd;
-      --sage-deep: #8fae83;
-      --ink: #f1ead9;
-      --ink-soft: #cabfa9;
-      --line: rgba(217,187,132,0.35);
-      --shadow-soft: 0 10px 30px rgba(0,0,0,0.35);
-      color-scheme: dark;
-    }
-  }
+  /* Paleta siempre clara/dorada a propósito: no se sigue el modo oscuro
+     del sistema, para que los colores sean exactamente los definidos
+     arriba en cualquier dispositivo. */
 
   *,*::before,*::after{ box-sizing:border-box; }
   html{ -webkit-text-size-adjust:100%; }
@@ -81,7 +87,7 @@
   .container{
     max-width:var(--container);
     margin:0 auto;
-    padding:0 1.35rem;
+    padding:0 clamp(1.15rem, 5.5vw, 1.6rem);
   }
 
   /* =========================================================
@@ -389,12 +395,12 @@
   .invitation.visible{ opacity:1; }
 
   section, header.hero, footer.footer{
-    padding:3.2rem 0;
+    padding:clamp(2.1rem, 8vw, 3.2rem) 0;
   }
 
   .hero{
     text-align:center;
-    padding-top:3.6rem;
+    padding-top:clamp(2.3rem, 9vw, 3.6rem);
   }
   .hero .eyebrow{
     font-size:.78rem;
@@ -521,8 +527,8 @@
 
   .swatch-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(76px,1fr));
-    gap:.9rem 1.1rem;
+    grid-template-columns:repeat(auto-fill, minmax(64px,1fr));
+    gap:.8rem 1rem;
     max-width:30rem;
     margin:0 auto;
   }
@@ -1005,9 +1011,23 @@
     }, 2000);
   }
 
+  /* Pantalla completa: solo se puede pedir dentro de un gesto real del
+     usuario, así que se intenta justo aquí, en el toque del sello. No
+     todos los navegadores lo permiten (por ejemplo el navegador interno
+     de WhatsApp casi nunca), así que va en try/catch y si falla no pasa
+     nada — la invitación sigue funcionando normal. */
+  function tryFullscreen(){
+    try{
+      var el = document.documentElement;
+      var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+      if (req) { req.call(el).catch ? req.call(el).catch(function(){}) : req.call(el); }
+    }catch(e){ /* silencioso: sin pantalla completa, sigue normal */ }
+  }
+
   function handleOpen(){
     if (envelope.classList.contains('opening')) return;
     envelope.classList.add('opening');
+    tryFullscreen();
     if (reduceMotion){
       openInvitationInstant();
     } else {
